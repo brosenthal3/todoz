@@ -1,0 +1,125 @@
+body, html{
+    height:100%;
+}
+
+.disabled-link {
+    pointer-events: none;
+    opacity:0.7;
+}
+.nav-wrapper{
+    padding-left:20px;
+    padding-right:20px;
+}
+.dropdown-content{
+    min-width:200px;
+}
+.subjects{
+    display:flex;
+    flex-direction: column;
+    margin-top:10px;
+    margin-bottom:20px;
+    padding-top:10px;
+}
+.row{
+    margin:0;
+    overflow:hidden !important;
+}
+.main-section{
+    border-left:1px solid #E0E0E0;
+}
+
+.subject-item{
+    padding:1rem;
+    padding-top:1.2rem;
+    cursor: pointer;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom:1px solid rgba(0, 0, 0, 0.15);
+}
+@media(max-width:900px){
+    .row{
+        display:flex;
+        flex-direction: column;
+    }
+    .s2, .s10{
+        width:100% !important;
+    }
+    .full-height{
+        height:auto;
+    }
+    .subjects{
+        border:0;
+    }
+}
+.subject-item i{
+    color:#1565c0;
+}
+.subject-item:hover{
+    transform: scale(1.02);
+}
+.subject-bottom:hover{
+    opacity:0.8;
+    cursor: pointer;
+}
+.notes-title{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+}
+.row{
+    overflow:scroll;
+}
+.sidenav h4{
+    padding-left:10px;
+    padding-bottom:5px;
+}
+.notes-container{
+    display:flex;
+    flex-wrap:wrap;
+}
+.note{
+    border:2px solid #E0E0E0;
+    padding:.80rem;
+    margin:.70rem;
+    flex: 1 0 31%;
+    height:100%;
+    transition:padding 200ms ease-out;
+    cursor: pointer;
+    opacity:0.7;
+}
+.note:hover{
+    opacity:1;
+}
+@media(max-width:660px){
+    .note{
+        flex:auto;
+    }
+}
+.notes-title{
+    padding-bottom:.1rem;
+}
+.note-text{
+    height:5.4rem;
+    overflow:hidden;
+}
+.note-title{
+    border-bottom:1px solid #E0E0E0;
+    margin-bottom:.1rem;
+}
+.note-title h5{
+    margin-top:.1rem;
+}
+.darker-grey{
+    background-color:#a5a5a5;
+}
+.highlighted-note{
+    border-color:#1565c0;
+    opacity:0.9;
+}
+textarea{
+    height:400px;
+}
+[type="radio"]:checked + label::after, [type="radio"].with-gap:checked + label::after {
+    background-color: rgb(255, 138, 6) !important;
+}
