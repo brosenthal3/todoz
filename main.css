@@ -82,7 +82,7 @@ body, html{
     border:2px solid #E0E0E0;
     padding:.80rem;
     margin:.70rem;
-    flex: 1 0 31%;
+    flex: 1 0 80%;
     height:100%;
     transition:padding 200ms ease-out;
     cursor: pointer;
@@ -122,4 +122,10 @@ textarea{
 }
 [type="radio"]:checked + label::after, [type="radio"].with-gap:checked + label::after {
     background-color: rgb(255, 138, 6) !important;
+}
+.priority-high{
+    box-shadow: 1px 1px 7px 0px rgb(200,20,20) !important;
+}
+.priority-medium{
+    box-shadow: 1px 1px 7px 0px rgb(200,120,20) !important;
 }

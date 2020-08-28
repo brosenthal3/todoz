@@ -96,7 +96,7 @@ const DOMController = (function(){
         }
         currentProjectObject.todoItems.forEach((todo) => {
             const element = document.createElement('div');
-            element.classList.add('note', 'card');
+            element.classList.add('note', 'card', `priority-${todo.todoPriority}`);
             element.id = `todo-${todo.id}`;
             element.innerHTML = `
                 <div class="note-title">
@@ -123,12 +123,15 @@ const DOMController = (function(){
     }
 
     const addTodoClick = () => {
-        const name = document.getElementById('todoName').value;
-        const desc = document.getElementById('todoContent').value;
-        const priority = document.getElementById('todoPriority').value;
+        const name = document.getElementById('todoName');
+        const desc = document.getElementById('todoContent');
+        const priority = document.getElementById('todoPriority');
         const project = localStorage.getItem('current-project').split('-')[1];
         console.log(project);
-        todoList.addTodo(name, desc, priority, project);
+        todoList.addTodo(name.value, desc.value, priority.value, project);
+        name.value = '';
+        desc.value = '';
+        
         render();
     }
 
