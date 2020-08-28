@@ -20,7 +20,8 @@ const todoList = (function() {
             todoDesc: description,
             todoPriority: priority,
             project: project,
-            id: allData[project].todoItems.length
+            id: allData[project].todoItems.length,
+            finished: false
         }
     }
     const addTodo = (name, description, priority, project) => {
@@ -28,9 +29,14 @@ const todoList = (function() {
         allData[todo.project].todoItems.push(todo);
         uploadToLocalStorage('', '', true);
     }
+
     const addProject = (name) => {
         allData.push(createProject(name));
         uploadToLocalStorage('', '', true);
+    }
+
+    const toggleTodoFinished = (project, id) => {
+        allData[project].todoItems[id].finished = allData[project].todoItems[id].finished ? false : true;
     }
 
     const uploadToLocalStorage = (name, data, uploadAll = false) => {
@@ -43,16 +49,16 @@ const todoList = (function() {
 
     if(!localStorage.todoData){
         addProject('Default');
-        addTodo('Example Todo', 'This is the description of the default example todo.', 'high', 0);
+        addTodo('Example Todo', 'This is the description of the default example todo.', 'low', 0);
+        uploadToLocalStorage('current-project', 'project-0');
     }
-    uploadToLocalStorage('todoData', JSON.stringify(allData));
-    uploadToLocalStorage('current-project', 'project-0');
     
     return {
         allData,
         addProject,
         addTodo,
-        uploadToLocalStorage
+        uploadToLocalStorage,
+        toggleTodoFinished
     }
 
 })();
@@ -61,32 +67,17 @@ const DOMController = (function(){
     const projectsElement = document.getElementById('subjects');    
     const notesContainer = document.getElementById('notes-container');
 
-    const data = todoList.allData;
-
     const render = () => {
         const currentProject = localStorage.getItem('current-project');
-        const currentProjectObject = data[currentProject.split('-')[1]];
+        const currentProjectObject = todoList.allData[currentProject.split('-')[1]];
 
-        data.forEach((project) => {
-            //remove the current element so it can be properly rendered.
+        todoList.allData.forEach((project) => {
             const current = document.getElementById(`project-div-${project.id}`)
             if(current){
                 current.parentNode.removeChild(current);
             };
-            //create the element to be appended
-            const element = document.createElement('div');
-            element.id = `project-div-${project.id}`;
-            //add a blue dot if the project is the current one selected
-            element.innerHTML = currentProject == `project-${project.id}` ? `
-            <li class="subject-item project-tab" id="project-${[project.id]}">
-                ${project.projectName}
-                <i class="material-icons">brightness_1</i>
-            </li>` : 
-            `<li class="subject-item project-tab" id="project-${[project.id]}">
-                ${project.projectName}
-            </li>`;
-            //append the project tab
-            projectsElement.insertBefore(element, document.getElementById('addProjectItem'));
+            const projectElement = createProjectElement(project, currentProject);
+            projectsElement.insertBefore(projectElement, document.getElementById('addProjectItem'));
         });
 
         document.getElementById('project-name-title').textContent = currentProjectObject.projectName;
@@ -94,22 +85,50 @@ const DOMController = (function(){
         if(currentProjectObject.todoItems.length == 0){
             notesContainer.innerHTML = `<p class="text-flow">There are currently no todos in this project.</p>`
         }
+
         currentProjectObject.todoItems.forEach((todo) => {
-            const element = document.createElement('div');
-            element.classList.add('note', 'card', `priority-${todo.todoPriority}`);
-            element.id = `todo-${todo.id}`;
-            element.innerHTML = `
-                <div class="note-title">
-                    <h5 class="text-flow ">${todo.todoName}</h5>
-                </div>
-                <div class="note-text">
-                    <p class="text-flow">${todo.todoDesc}</p>
-                    <p class="text-flow">Priority: ${todo.todoPriority}</p>
-                </div>`
-            notesContainer.appendChild(element);
+            const todoElement = createTodoElement(todo);
+            notesContainer.appendChild(todoElement);
         });
 
         bindEvents();
+    }
+
+    const createProjectElement = (project, currentProject) => {
+        const element = document.createElement('div');
+        element.id = `project-div-${project.id}`;
+        //add a blue dot if the project is the current one selected
+        element.innerHTML = currentProject == `project-${project.id}` ? `
+        <li class="subject-item project-tab" id="project-${[project.id]}">
+            ${project.projectName}
+            <i class="material-icons">brightness_1</i>
+        </li>` : 
+        `<li class="subject-item project-tab" id="project-${[project.id]}">
+            ${project.projectName}
+        </li>`;
+        return element;
+    }
+
+    const createTodoElement = (todo) => {
+        const element = document.createElement('div');
+        const finishedBtnClass = todo.finished ? 'finished-icon' : 'not-finished-icon';
+        const finishedBtnIcon = todo.finished ? 'check_circle' : 'remove_circle_outline';
+        element.classList.add('note', 'card', `priority-${todo.todoPriority}`);
+        element.id = `todo-${todo.id}`;
+        element.innerHTML = `
+            <div class="note-title">
+                <h5 class="text-flow"> 
+                <i class="material-icons ${finishedBtnClass} finish-btn" id=${todo.id}>${finishedBtnIcon}</i>  ${todo.todoName}</h5>
+                <div>
+                    <i class="material-icons">edit</i>
+                    <i class="material-icons">delete</i>
+                </div>
+            </div>
+            <div class="note-text">
+                <p class="text-flow">${todo.todoDesc}</p>
+                <p class="text-flow">Priority: ${todo.todoPriority}</p>
+            </div>`
+        return element;
     }
 
     const addProjectClick = () => {
@@ -140,12 +159,20 @@ const DOMController = (function(){
         render();
     }
 
+    const finishBtnClick = (e) => {
+        todoList.toggleTodoFinished(+localStorage.getItem('current-project').split('-')[1], e.target.id);
+        render();
+    }
+
     const bindEvents = () => {
         document.getElementById('addProjectBtn').addEventListener('click', addProjectClick);
         document.getElementById('addTodoBtn').addEventListener('click', addTodoClick);
 
         document.querySelectorAll('.project-tab').forEach((item) => {
             item.addEventListener('click', projectTabClick);
+        })
+        document.querySelectorAll('.finish-btn').forEach((item) => {
+            item.addEventListener('click', finishBtnClick);
         })
     }
     render();

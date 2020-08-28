@@ -2,6 +2,7 @@
 <html>
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="main.css">
     
@@ -11,7 +12,7 @@
 
 <body>
     <div class="navbar-fixed">
-        <nav class="blue darken-3">
+        <nav class="green darken-3">
             <div class="nav-wrapper">
                 <div class="brand-logo">Todoz App</div>
                 </ul>
@@ -36,7 +37,7 @@
         </div>
 
         <div class="fixed-action-btn">
-            <a href="#" data-target="modal1" class="btn-floating blue darken-3 btn-large modal-trigger"><i class="material-icons">add</i></a>
+            <a href="#" data-target="modal1" class="btn-floating green darken-3 btn-large modal-trigger"><i class="material-icons">add</i></a>
         </div>
 
         <div id="modal1" class="modal">
@@ -53,11 +54,16 @@
                     <div class="input-field">
                         <select name="priority" id="todoPriority">
                             <option value="low" disabled selected>Select the priority</option>
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
                             <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
                         </select>
                     </div>
+                    
+                       <!-- Priority:
+                    <p class="range-field">
+                        <input type="range" min="1" max="3" value="2"  id="myRange">
+                    </p>-->
                 </form>
             </div>
             <div class="modal-footer">
@@ -81,7 +87,6 @@
                 <a href="#!" class="modal-close left btn-flat">Cancel</a>
             </div>
         </div>
-
 
     </div>
 
