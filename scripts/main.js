@@ -20,7 +20,7 @@ const todoList = (function() {
             todoDesc: description,
             todoPriority: priority,
             project: project,
-            id: allData[project].todoItems.length,
+            id: allData[project].todoItems.length > 0 ? allData[project].todoItems[allData[project].todoItems.length -1].id + 1 : allData[project].todoItems.length,
             finished: false
         }
     }
@@ -50,13 +50,14 @@ const todoList = (function() {
     }
 
     const deleteTodo = (id) => {
-        const targetProject = allData.findIndex(project => project.id == localStorage.getItem('current-project').split('-')[1])
-        allData[targetProject].todoItems.splice(id, 1);
+        const targetProject = allData.findIndex(project => project.id == localStorage.getItem('current-project').split('-')[1]);
+        const targetTodo = allData[targetProject].todoItems.findIndex(todo => todo.id == id);
+        allData[targetProject].todoItems.splice(targetTodo, 1);
         uploadToLocalStorage('', '', true);
     }
     const deleteProject = (id) => {
-        let project = allData.find(item => item.id == id);
-        allData.splice(project.id, 1);
+        let project = allData.findIndex(item => item.id == id);
+        allData.splice(project, 1);
         uploadToLocalStorage('current-project', `project-0`);
         uploadToLocalStorage('', '', true);
     }
@@ -169,7 +170,6 @@ const DOMController = (function(){
         if(name.value.length <= 0){
             return;
         }
-        console.log(project);
         todoList.addTodo(name.value, desc.value, priority.value, project);
         name.value = '';
         desc.value = '';
@@ -196,7 +196,6 @@ const DOMController = (function(){
         render();
     }
     const deleteProjectClick = () => {
-        console.log(`deleting project ${localStorage.getItem('current-project').split('-')[1]}`);
         if(confirm('Are you sure you want to delete this project?')){    
             todoList.deleteProject(localStorage.getItem('current-project').split('-')[1]);
         } else{
@@ -208,6 +207,9 @@ const DOMController = (function(){
     const bindEvents = () => {
         document.getElementById('addProjectBtn').addEventListener('click', addProjectClick);
         document.getElementById('addTodoBtn').addEventListener('click', addTodoClick);
+        document.getElementById('newSubjectModal').addEventListener('keydown', () => {
+            return;
+        });
         if(document.getElementById('delete-project')){
             document.getElementById('delete-project').addEventListener('click', deleteProjectClick);
         }

@@ -4,8 +4,11 @@
 
 body, html{
     height:100%;
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Open Sans', sans-serif;
+    font-family:"Raleway", sans-serif;
     overflow-x:hidden;
+    color:#4a4a4a;
+    background:#f3f3f3;
 }
 
 a{
@@ -150,7 +153,7 @@ input[type="range"]{
 }
 .priority-high{
     /*box-shadow: 0 2px 2px 0 rgba(250,30,30,0.14), 0 3px 1px -2px rgba(250,30,30,0.12), 0 1px 5px 0 rgba(250,30,30,0.2);*/
-    background:rgba(190, 37, 17, 0.12);
+    background:rgba(223, 44, 21, 0.12);
 }
 .priority-medium{
     background:rgba(224, 211, 20, 0.12);
