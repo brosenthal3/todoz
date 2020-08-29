@@ -1,10 +1,26 @@
+:root{
+    --main-color:#0D47A1;
+}
+
 body, html{
     height:100%;
     font-family: 'Raleway', sans-serif;
+    overflow-x:hidden;
 }
 
 a{
-    color:#2E7D32;
+    color:var(--main-color);
+}
+i{
+    margin:auto .4em;
+    margin-left:0;
+    cursor: pointer;
+}
+textarea{
+    height:400px;
+}
+input[type="range"]{
+    width:25%;
 }
 
 .disabled-link {
@@ -56,7 +72,7 @@ a{
     }
 }
 .subject-item i{
-    color:#2E7D32;
+    color:var(--main-color);
 }
 .subject-item:hover{
     transform: scale(1.015);
@@ -84,13 +100,10 @@ a{
 .note{
     border:2px solid #E0E0E0;
     padding:.80rem;
-    margin:.70rem;
-    flex: 1 0 80%;
+    margin:.40rem .2rem;
+    flex:1 1 90%;
     height:100%;
     transition:padding 200ms ease-out;
-    opacity:1;
-}
-.note:hover{
     opacity:1;
 }
 @media(max-width:660px){
@@ -107,48 +120,64 @@ a{
 }
 .note-title{
     border-bottom:1px solid #E0E0E0;
-    margin-bottom:.1rem;
     display:flex;
     justify-content:space-between;
 }
 .note-title h5{
-    margin-top:.1rem;
+    margin:0;
     display:flex;
     align-items:center;
 }
-i{
-    margin:auto .4em;
-    margin-left:0;
-    cursor: pointer;
-}
+
 .finished-icon{
     color:#2E7D32;
 }
 .not-finished-icon{
     color:inherit;
 }
+.finished-true{
+    opacity:0.3;
+    background:rgba(65, 94, 175, 0) !important;
+    box-shadow:none;
+    border:1px solid white;
+}
 .darker-grey{
     background-color:#a5a5a5;
 }   
-textarea{
-    height:400px;
-}
-[type="radio"]:checked + label::after, [type="radio"].with-gap:checked + label::after {
-    background-color: rgb(255, 138, 6) !important;
-}
-input[type="range"]{
-    width:25%;
-}
+
 .priority-low{
-    background:rgba(65, 175, 71, 0.12);
+    background:rgba(65, 175, 71, 0);
 }
 .priority-high{
     /*box-shadow: 0 2px 2px 0 rgba(250,30,30,0.14), 0 3px 1px -2px rgba(250,30,30,0.12), 0 1px 5px 0 rgba(250,30,30,0.2);*/
     background:rgba(190, 37, 17, 0.12);
 }
 .priority-medium{
-    background:rgba(224, 210, 15, 0.12);
+    background:rgba(224, 211, 20, 0.12);
 }
 .modal{
     width:60%;
+}
+.note-title-content{
+    display:flex;
+    align-items:flex-end;
+    margin-bottom:0.5em;
+}
+.note-title-content h5{
+    margin-right:0.5em;
+}
+.note-text{
+    height:auto;
+}
+.priority{
+    text-transform: capitalize;
+}
+#project-name-title{
+    display:flex;
+    align-items:flex-end;
+}
+#project-name-title i{
+    margin-left:.3em;
+    margin-bottom:.15em;
+    font-size:35px;
 }

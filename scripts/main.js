@@ -10,7 +10,7 @@ const todoList = (function() {
     const createProject = (name) => {
         return {
             projectName: name,
-            id: allData.length,
+            id: allData.length > 0 ? allData[allData.length - 1].id + 1 : allData.length,
             todoItems: []
         }
     }
@@ -25,8 +25,9 @@ const todoList = (function() {
         }
     }
     const addTodo = (name, description, priority, project) => {
-        const todo = createTodo(name, description, priority, project);
-        allData[todo.project].todoItems.push(todo);
+        const targetProject = allData.findIndex(proj => proj.id == project);
+        const todo = createTodo(name, description, priority, targetProject);
+        allData[targetProject].todoItems.push(todo);
         uploadToLocalStorage('', '', true);
     }
 
@@ -36,7 +37,8 @@ const todoList = (function() {
     }
 
     const toggleTodoFinished = (project, id) => {
-        allData[project].todoItems[id].finished = allData[project].todoItems[id].finished ? false : true;
+        const targetProject = allData.findIndex(proj => proj.id == project)
+        allData[targetProject].todoItems[id].finished = allData[targetProject].todoItems[id].finished ? false : true;
     }
 
     const uploadToLocalStorage = (name, data, uploadAll = false) => {
@@ -45,6 +47,18 @@ const todoList = (function() {
             return;
         }
         localStorage.setItem(name, data);
+    }
+
+    const deleteTodo = (id) => {
+        const targetProject = allData.findIndex(project => project.id == localStorage.getItem('current-project').split('-')[1])
+        allData[targetProject].todoItems.splice(id, 1);
+        uploadToLocalStorage('', '', true);
+    }
+    const deleteProject = (id) => {
+        let project = allData.find(item => item.id == id);
+        allData.splice(project.id, 1);
+        uploadToLocalStorage('current-project', `project-0`);
+        uploadToLocalStorage('', '', true);
     }
 
     if(!localStorage.todoData){
@@ -58,7 +72,9 @@ const todoList = (function() {
         addProject,
         addTodo,
         uploadToLocalStorage,
-        toggleTodoFinished
+        toggleTodoFinished,
+        deleteTodo,
+        deleteProject
     }
 
 })();
@@ -69,18 +85,18 @@ const DOMController = (function(){
 
     const render = () => {
         const currentProject = localStorage.getItem('current-project');
-        const currentProjectObject = todoList.allData[currentProject.split('-')[1]];
+        const currentProjectObject = todoList.allData.find(project => project.id == [currentProject.split('-')[1]]);
 
+        projectsElement.innerHTML = `<a href="#!" class="subject-item subject-bottom modal-trigger" id="addProjectItem" data-target="newSubjectModal"> Add Project <i class="material-icons">add</i></a>`;
         todoList.allData.forEach((project) => {
             const current = document.getElementById(`project-div-${project.id}`)
-            if(current){
-                current.parentNode.removeChild(current);
-            };
+            
             const projectElement = createProjectElement(project, currentProject);
-            projectsElement.insertBefore(projectElement, document.getElementById('addProjectItem'));
+            projectsElement.appendChild(projectElement);
         });
 
-        document.getElementById('project-name-title').textContent = currentProjectObject.projectName;
+        document.getElementById('project-name-title').innerHTML = `${currentProjectObject.projectName} Todoz 
+            ${currentProjectObject.id == 0 ? '' : `<i class="material-icons" id="delete-project">delete</i>`}`;
         notesContainer.innerHTML = '';
         if(currentProjectObject.todoItems.length == 0){
             notesContainer.innerHTML = `<p class="text-flow">There are currently no todos in this project.</p>`
@@ -113,20 +129,24 @@ const DOMController = (function(){
         const element = document.createElement('div');
         const finishedBtnClass = todo.finished ? 'finished-icon' : 'not-finished-icon';
         const finishedBtnIcon = todo.finished ? 'check_circle' : 'remove_circle_outline';
-        element.classList.add('note', 'card', `priority-${todo.todoPriority}`);
+        element.classList.add('note', 'card', `priority-${todo.todoPriority}`, `finished-${todo.finished}`);
         element.id = `todo-${todo.id}`;
         element.innerHTML = `
             <div class="note-title">
-                <h5 class="text-flow"> 
-                <i class="material-icons ${finishedBtnClass} finish-btn" id=${todo.id}>${finishedBtnIcon}</i>  ${todo.todoName}</h5>
+                <div class="note-title-content">
+                    <h5 class="text-flow"> 
+                        <i class="material-icons ${finishedBtnClass} finish-btn" id=${todo.id}>${finishedBtnIcon}</i>  ${todo.todoName}
+                    </h5>
+                    <span class="priority">Priority: ${todo.todoPriority}</span>
+                </div>
+                
                 <div>
-                    <i class="material-icons">edit</i>
-                    <i class="material-icons">delete</i>
+                    <i class="material-icons edit-note" id="${todo.id}">edit</i>
+                    <i class="material-icons delete-note" id="${todo.id}">delete</i>
                 </div>
             </div>
             <div class="note-text">
                 <p class="text-flow">${todo.todoDesc}</p>
-                <p class="text-flow">Priority: ${todo.todoPriority}</p>
             </div>`
         return element;
     }
@@ -146,6 +166,9 @@ const DOMController = (function(){
         const desc = document.getElementById('todoContent');
         const priority = document.getElementById('todoPriority');
         const project = localStorage.getItem('current-project').split('-')[1];
+        if(name.value.length <= 0){
+            return;
+        }
         console.log(project);
         todoList.addTodo(name.value, desc.value, priority.value, project);
         name.value = '';
@@ -164,9 +187,30 @@ const DOMController = (function(){
         render();
     }
 
+    const deleteNoteClick = (e) => {
+        if(confirm('Are you sure you want to delete this Todo?')){
+            todoList.deleteTodo(e.target.id);
+        } else{
+            return;
+        }
+        render();
+    }
+    const deleteProjectClick = () => {
+        console.log(`deleting project ${localStorage.getItem('current-project').split('-')[1]}`);
+        if(confirm('Are you sure you want to delete this project?')){    
+            todoList.deleteProject(localStorage.getItem('current-project').split('-')[1]);
+        } else{
+            return;
+        }
+        render();
+    }
+
     const bindEvents = () => {
         document.getElementById('addProjectBtn').addEventListener('click', addProjectClick);
         document.getElementById('addTodoBtn').addEventListener('click', addTodoClick);
+        if(document.getElementById('delete-project')){
+            document.getElementById('delete-project').addEventListener('click', deleteProjectClick);
+        }
 
         document.querySelectorAll('.project-tab').forEach((item) => {
             item.addEventListener('click', projectTabClick);
@@ -174,6 +218,14 @@ const DOMController = (function(){
         document.querySelectorAll('.finish-btn').forEach((item) => {
             item.addEventListener('click', finishBtnClick);
         })
+        document.querySelectorAll('.delete-note').forEach((item) => {
+            item.addEventListener('click', deleteNoteClick);
+        })
+        
     }
     render();
+
+    return {
+        render
+    }
 })();
