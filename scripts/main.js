@@ -57,6 +57,7 @@ const todoList = (function() {
         }
         localStorage.setItem(name, data);
     }
+    uploadToLocalStorage('current-project', 'project-0');
 
     const deleteTodo = (id) => {
         const targetProject = getCurrentProjectIndex();
@@ -74,10 +75,12 @@ const todoList = (function() {
     const getTodoIndex = (id, targetProject) => allData[targetProject].todoItems.findIndex(todo => todo.id == id)
 
     if(!localStorage.todoData){
+        uploadToLocalStorage('current-project', 'project-0');
         addProject('Default');
         addTodo('Example Todo', 'This is the description of the default example todo.', 'low', 0);
-        uploadToLocalStorage('current-project', 'project-0');
     }
+
+    
     
     return {
         allData,
