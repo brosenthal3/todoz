@@ -1,11 +1,12 @@
 const todoList = (function() {
     let allData;
-    if(localStorage.todoData){
-        allData = JSON.parse(localStorage.getItem('todoData'));
-    } else {
-        allData = [];
+    const setData = () => {
+        if(localStorage.todoData){
+            allData = JSON.parse(localStorage.getItem('todoData'));
+        } else {
+            allData = [];
+        }
     }
-    console.log(allData);
 
     const createProject = (name) => {
         return {
@@ -24,8 +25,8 @@ const todoList = (function() {
             finished: false
         }
     }
-    const addTodo = (name, description, priority, project) => {
-        const targetProject = allData.findIndex(proj => proj.id == project);
+    const addTodo = (name, description, priority) => {
+        const targetProject = getCurrentProjectIndex();
         const todo = createTodo(name, description, priority, targetProject);
         allData[targetProject].todoItems.push(todo);
         uploadToLocalStorage('', '', true);
@@ -36,9 +37,18 @@ const todoList = (function() {
         uploadToLocalStorage('', '', true);
     }
 
-    const toggleTodoFinished = (project, id) => {
-        const targetProject = allData.findIndex(proj => proj.id == project)
-        allData[targetProject].todoItems[id].finished = allData[targetProject].todoItems[id].finished ? false : true;
+    /*const editTodo = (newName, newDesc, newPriority, id) => {
+        const targetProject = getCurrentProjectIndex();
+        const targetTodo = getTodoIndex(id, targetProject);
+        allData[targetProject].todoItems[targetTodo] = createTodo(newName, newDesc, newPriority, targetProject);
+        uploadToLocalStorage('', '', true);
+    }*/
+
+    const toggleTodoFinished = (id) => {
+        const targetProject = getCurrentProjectIndex();
+        const targetTodo = getTodoIndex(id, targetProject);
+        allData[targetProject].todoItems[targetTodo].finished = allData[targetProject].todoItems[targetTodo].finished ? false : true;
+        uploadToLocalStorage('', '', true);
     }
 
     const uploadToLocalStorage = (name, data, uploadAll = false) => {
@@ -50,8 +60,8 @@ const todoList = (function() {
     }
 
     const deleteTodo = (id) => {
-        const targetProject = allData.findIndex(project => project.id == localStorage.getItem('current-project').split('-')[1]);
-        const targetTodo = allData[targetProject].todoItems.findIndex(todo => todo.id == id);
+        const targetProject = getCurrentProjectIndex();
+        const targetTodo = getTodoIndex(id, targetProject);
         allData[targetProject].todoItems.splice(targetTodo, 1);
         uploadToLocalStorage('', '', true);
     }
@@ -59,14 +69,18 @@ const todoList = (function() {
         let project = allData.findIndex(item => item.id == id);
         allData.splice(project, 1);
         uploadToLocalStorage('current-project', `project-0`);
-        uploadToLocalStorage('', '', true);
     }
+
+    const getCurrentProjectIndex = () => allData.findIndex(project => project.id == localStorage.getItem('current-project').split('-')[1]);
+    const getTodoIndex = (id, targetProject) => allData[targetProject].todoItems.findIndex(todo => todo.id == id)
 
     if(!localStorage.todoData){
         addProject('Default');
         addTodo('Example Todo', 'This is the description of the default example todo.', 'low', 0);
         uploadToLocalStorage('current-project', 'project-0');
     }
+
+    setData();
     
     return {
         allData,
@@ -75,7 +89,9 @@ const todoList = (function() {
         uploadToLocalStorage,
         toggleTodoFinished,
         deleteTodo,
-        deleteProject
+        deleteProject,
+        getCurrentProjectIndex,
+        getTodoIndex
     }
 
 })();
@@ -86,7 +102,8 @@ const DOMController = (function(){
 
     const render = () => {
         const currentProject = localStorage.getItem('current-project');
-        const currentProjectObject = todoList.allData.find(project => project.id == [currentProject.split('-')[1]]);
+        const currentProjectObject = todoList.allData[todoList.getCurrentProjectIndex()];
+        
 
         projectsElement.innerHTML = `<a href="#!" class="subject-item subject-bottom modal-trigger" id="addProjectItem" data-target="newSubjectModal"> Add Project <i class="material-icons">add</i></a>`;
         todoList.allData.forEach((project) => {
@@ -142,7 +159,7 @@ const DOMController = (function(){
                 </div>
                 
                 <div>
-                    <i class="material-icons edit-note" id="${todo.id}">edit</i>
+                    <!--<i class="material-icons edit-note" id="${todo.id}">edit</i>-->
                     <i class="material-icons delete-note" id="${todo.id}">delete</i>
                 </div>
             </div>
@@ -156,9 +173,8 @@ const DOMController = (function(){
         const name = document.getElementById('project-name').value;
         if(name.length <= 0){
             return;
-        } else{
-            todoList.addProject(name);
         }
+        todoList.addProject(name);
         render();
     }
 
@@ -166,11 +182,10 @@ const DOMController = (function(){
         const name = document.getElementById('todoName');
         const desc = document.getElementById('todoContent');
         const priority = document.getElementById('todoPriority');
-        const project = localStorage.getItem('current-project').split('-')[1];
         if(name.value.length <= 0){
             return;
         }
-        todoList.addTodo(name.value, desc.value, priority.value, project);
+        todoList.addTodo(name.value, desc.value, priority.value);
         name.value = '';
         desc.value = '';
         
@@ -183,7 +198,7 @@ const DOMController = (function(){
     }
 
     const finishBtnClick = (e) => {
-        todoList.toggleTodoFinished(+localStorage.getItem('current-project').split('-')[1], e.target.id);
+        todoList.toggleTodoFinished(e.target.id);
         render();
     }
 
@@ -197,12 +212,29 @@ const DOMController = (function(){
     }
     const deleteProjectClick = () => {
         if(confirm('Are you sure you want to delete this project?')){    
-            todoList.deleteProject(localStorage.getItem('current-project').split('-')[1]);
+            todoList.deleteProject(todoList.getCurrentProjectIndex());
         } else{
             return;
         }
         render();
     }
+    /*const editNoteClick = (e) => {
+        const name = document.getElementById('todoName');
+        const desc = document.getElementById('todoContent');
+        const priority = document.getElementById('todoPriority');
+        const todoContent = todoList.allData[todoList.getCurrentProjectIndex()].todoItems[todoList.getTodoIndex(e.target.id, todoList.getCurrentProjectIndex())];
+        const title = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
+
+        name.value = todoContent.todoName;
+        desc.value = todoContent.todoDesc;
+        priority.value = todoContent.todoPriority;
+        title.textContent = 'Edit Your Todo';
+        modalDesc.textContent = 'Edit Your Todo Here:';
+
+        const instance = M.Modal.getInstance(document.getElementById('modal1'));
+        instance.open();
+    }*/
 
     const bindEvents = () => {
         document.getElementById('addProjectBtn').addEventListener('click', addProjectClick);
@@ -223,6 +255,9 @@ const DOMController = (function(){
         document.querySelectorAll('.delete-note').forEach((item) => {
             item.addEventListener('click', deleteNoteClick);
         })
+        /*document.querySelectorAll('.edit-note').forEach((item) => {
+            item.addEventListener('click', editNoteClick);
+        })*/
         
     }
     render();
