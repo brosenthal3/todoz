@@ -11,6 +11,7 @@ This project also makes use of the localStorage web API, so that all the todo's 
 To reset all the data, press F12 to go to the console and type in:
 ```javascript
 localStorage.clear();
+todoList.uploadToLocalStorage('current-project', 'project-0');
 ```
 This will clear the storage and by reloading the page you will see that the site will return to it's initial state.
 
