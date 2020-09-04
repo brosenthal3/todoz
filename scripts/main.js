@@ -1,12 +1,11 @@
 const todoList = (function() {
     let allData;
-    const setData = () => {
-        if(localStorage.todoData){
-            allData = JSON.parse(localStorage.getItem('todoData'));
-        } else {
-            allData = [];
-        }
+    if(localStorage.todoData){
+        allData = JSON.parse(localStorage.getItem('todoData'));
+    } else {
+        allData = [];
     }
+    
 
     const createProject = (name) => {
         return {
@@ -79,8 +78,6 @@ const todoList = (function() {
         addTodo('Example Todo', 'This is the description of the default example todo.', 'low', 0);
         uploadToLocalStorage('current-project', 'project-0');
     }
-
-    setData();
     
     return {
         allData,
