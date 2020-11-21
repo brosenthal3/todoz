@@ -44,9 +44,15 @@ const todoList = (function() {
     }*/
 
     const toggleTodoFinished = (id) => {
+        const audio = new Audio('beep.mp3');
         const targetProject = getCurrentProjectIndex();
         const targetTodo = getTodoIndex(id, targetProject);
-        allData[targetProject].todoItems[targetTodo].finished = allData[targetProject].todoItems[targetTodo].finished ? false : true;
+        if(allData[targetProject].todoItems[targetTodo].finished){
+            allData[targetProject].todoItems[targetTodo].finished = false;
+        } else{
+            audio.play();
+            allData[targetProject].todoItems[targetTodo].finished = true;
+        }
         uploadToLocalStorage('', '', true);
     }
 
